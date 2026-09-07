@@ -4,7 +4,10 @@ const state = {
     xp: 0,
     contacts: 0,
     followups: 0,
-    rev: 0
+    rev: 0,
+    bookedAmount: 0,
+    estimatedProfit: 0,
+    dealsBooked: 0
 };
 
 let currentMode = 'sales';
@@ -70,6 +73,7 @@ function init() {
     setupEventListeners();
     setupDealForm();
     renderUI();
+    loadTodayState();
 }
 
 function setupDateAndMode() {
@@ -182,6 +186,97 @@ async function sendAction(actionData) {
     } catch (error) {
         console.error(`Could not send ${actionData.actionType} to Google Sheets:`, error);
     }
+}
+
+async function loadTodayState() {
+    setSyncStatus('SYNCING...');
+    setActionButtonsDisabled(true);
+
+    try {
+        const data = await jsonpRequest({ action: 'getToday' });
+
+        if (!data || data.ok !== true) {
+            throw new Error(data?.error || 'Could not load today data');
+        }
+
+        state.xp = safeNumber(data.xp);
+        state.contacts = safeNumber(data.contacts);
+        state.followups = safeNumber(data.followups);
+        state.rev = safeNumber(data.rev);
+        state.bookedAmount = safeNumber(data.bookedAmount);
+        state.estimatedProfit = safeNumber(data.estimatedProfit);
+        state.dealsBooked = safeNumber(data.dealsBooked);
+
+        renderUI();
+        setSyncStatus('SHEET SYNCED');
+    } catch (error) {
+        console.error('Could not restore today from Google Sheets:', error);
+        setSyncStatus('SYNC FAILED — TAPS STILL SAVE');
+    } finally {
+        setActionButtonsDisabled(false);
+    }
+}
+
+function jsonpRequest(params, timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+        const callbackName = `__glenGrowth_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const script = document.createElement('script');
+        const url = new URL(API_URL);
+        let settled = false;
+
+        Object.entries(params || {}).forEach(([key, value]) => {
+            url.searchParams.set(key, String(value));
+        });
+
+        url.searchParams.set('callback', callbackName);
+        url.searchParams.set('_', String(Date.now()));
+
+        const cleanup = () => {
+            if (script.parentNode) script.parentNode.removeChild(script);
+            try {
+                delete window[callbackName];
+            } catch (_) {
+                window[callbackName] = undefined;
+            }
+        };
+
+        const timer = setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            reject(new Error('Google Sheets sync timed out'));
+        }, timeoutMs);
+
+        window[callbackName] = (data) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            cleanup();
+            resolve(data);
+        };
+
+        script.onerror = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            cleanup();
+            reject(new Error('Google Sheets sync request failed'));
+        };
+
+        script.src = url.toString();
+        document.head.appendChild(script);
+    });
+}
+
+function setSyncStatus(text) {
+    const el = document.getElementById('sync-status');
+    if (el) el.textContent = text;
+}
+
+function setActionButtonsDisabled(disabled) {
+    document.querySelectorAll('.action-btn').forEach((btn) => {
+        btn.disabled = disabled;
+    });
 }
 
 function setupDealForm() {
@@ -297,6 +392,10 @@ async function handleDealSubmit(event) {
 
         state.xp += actionValues.deal.xp;
         state.rev += 1;
+        state.bookedAmount += amount;
+        state.estimatedProfit += profit;
+        state.dealsBooked += 1;
+
         renderUI();
         animateXP();
 
@@ -340,6 +439,11 @@ function readMoneyInput(id) {
     return Number.isFinite(value) ? value : 0;
 }
 
+function safeNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+}
+
 function formatCurrency(value) {
     return new Intl.NumberFormat('en-CA', {
         style: 'currency',
@@ -358,6 +462,14 @@ function renderUI() {
     if (currentMode === 'sales') {
         updateProgressRow('rev', state.rev, targets.rev);
     }
+
+    const bookedEl = document.getElementById('today-booked');
+    const profitEl = document.getElementById('today-profit');
+    const dealsEl = document.getElementById('today-deals');
+
+    if (bookedEl) bookedEl.textContent = formatCurrency(state.bookedAmount);
+    if (profitEl) profitEl.textContent = formatCurrency(state.estimatedProfit);
+    if (dealsEl) dealsEl.textContent = state.dealsBooked;
 
     updateDailyScore();
 }
