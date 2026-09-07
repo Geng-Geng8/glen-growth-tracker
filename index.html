@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Glen Growth</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>GLEN GROWTH</h1>
+        <div class="streak-badge">🔥 <span id="streak-count">5</span> Day Streak</div>
+    </header>
 
+    <main class="app-container">
+        <!-- Date and Mode Section -->
+        <section class="status-panel">
+            <h2 id="date-display">Loading Date...</h2>
+            
+            <div class="mode-indicator">
+                <span class="mode-label">CURRENT MODE:</span>
+                <span id="active-mode" class="mode-value">FULL SALES MODE</span>
+            </div>
+            
+            <div class="mode-schedule">
+                <p class="schedule-item" id="schedule-travel">TRAVEL MODE: Sept 9, 2026 - Oct 3, 2026</p>
+                <p class="schedule-item" id="schedule-sales">FULL SALES MODE: Starting Oct 4, 2026</p>
+            </div>
+        </section>
+
+        <!-- XP Score Section -->
+        <section class="xp-panel">
+            <div class="xp-value" id="xp-display">0</div>
+            <div class="xp-label">DAILY XP</div>
+        </section>
+
+        <!-- Daily Progress Section -->
+        <section class="progress-panel">
+            <div class="progress-item" id="progress-contacts-container">
+                <div class="progress-header">
+                    <span>Qualified Contacts</span>
+                    <span class="progress-text"><span id="val-contacts">0</span> / <span id="target-contacts">3</span> <span class="check" id="check-contacts"></span></span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="bar-contacts"></div>
+                </div>
+            </div>
+
+            <div class="progress-item" id="progress-followups-container">
+                <div class="progress-header">
+                    <span>Follow-ups</span>
+                    <span class="progress-text"><span id="val-followups">0</span> / <span id="target-followups">3</span> <span class="check" id="check-followups"></span></span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="bar-followups"></div>
+                </div>
+            </div>
+
+            <div class="progress-item" id="progress-rev-container">
+                <div class="progress-header">
+                    <span>Revenue-Moving Actions</span>
+                    <span class="progress-text"><span id="val-rev">0</span> / <span id="target-rev">1</span> <span class="check" id="check-rev"></span></span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="bar-rev"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Buttons Section -->
+        <section class="actions-panel">
+            <h3>LOG ACTION</h3>
+            <div class="actions-grid">
+                <button class="action-btn btn-standard" data-action="contact">
+                    <span class="btn-title">Qualified Contact</span>
+                    <span class="btn-xp">+1 XP</span>
+                </button>
+                
+                <button class="action-btn btn-standard" data-action="followup">
+                    <span class="btn-title">Follow-up</span>
+                    <span class="btn-xp">+1 XP</span>
+                </button>
+
+                <button class="action-btn btn-rev" data-action="referral">
+                    <span class="btn-title">Ask for Referral</span>
+                    <span class="btn-xp">+3 XP</span>
+                </button>
+
+                <button class="action-btn btn-rev" data-action="software">
+                    <span class="btn-title">Software Interview</span>
+                    <span class="btn-xp">+3 XP</span>
+                </button>
+
+                <button class="action-btn btn-rev" data-action="dm-convo">
+                    <span class="btn-title">DM Conversation</span>
+                    <span class="btn-xp">+5 XP</span>
+                </button>
+
+                <button class="action-btn btn-rev" data-action="next-step">
+                    <span class="btn-title">Next Step Scheduled</span>
+                    <span class="btn-xp">+5 XP</span>
+                </button>
+
+                <button class="action-btn btn-rev btn-wide" data-action="proposal">
+                    <span class="btn-title">Proposal / Quote Sent</span>
+                    <span class="btn-xp">+8 XP</span>
+                </button>
+
+                <button class="action-btn btn-deal btn-wide" data-action="deal">
+                    <span class="btn-title">BOOKED DEAL</span>
+                    <span class="btn-xp">+20 XP</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
