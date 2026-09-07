@@ -1,7 +1,10 @@
 {
+  "id": "./",
   "name": "Glen Growth Tracker",
   "short_name": "Glen Growth",
   "description": "Glen Reyes business development, revenue and growth tracker.",
+  "lang": "en-CA",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -10,6 +13,7 @@
   "background_color": "#000000",
   "theme_color": "#ccff00",
   "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icon.svg",
