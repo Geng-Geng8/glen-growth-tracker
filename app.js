@@ -68,6 +68,7 @@ const actionValues = {
 function init() {
     setupDateAndMode();
     setupEventListeners();
+    setupDealForm();
     renderUI();
 }
 
@@ -134,24 +135,35 @@ function handleActionClick(event) {
 
     if (!actionData) return;
 
+    if (actionKey === 'deal') {
+        openDealModal();
+        return;
+    }
+
     state.xp += actionData.xp;
     state[actionData.type] += 1;
 
     renderUI();
-
-    btn.style.transform = 'scale(0.94)';
-    setTimeout(() => {
-        btn.style.transform = 'scale(1)';
-    }, 120);
-
-    const xpEl = document.getElementById('xp-display');
-    xpEl.classList.remove('bump');
-    void xpEl.offsetWidth;
-    xpEl.classList.add('bump');
+    animateAction(btn);
+    animateXP();
 
     if (actionData.persist) {
         sendAction(actionData);
     }
+}
+
+function animateAction(btn) {
+    btn.style.transform = 'scale(0.94)';
+    setTimeout(() => {
+        btn.style.transform = 'scale(1)';
+    }, 120);
+}
+
+function animateXP() {
+    const xpEl = document.getElementById('xp-display');
+    xpEl.classList.remove('bump');
+    void xpEl.offsetWidth;
+    xpEl.classList.add('bump');
 }
 
 async function sendAction(actionData) {
@@ -160,27 +172,181 @@ async function sendAction(actionData) {
         actionType: actionData.actionType,
         count: 1,
         xp: actionData.xp,
-        mode: currentMode === 'travel' ? 'TRAVEL MODE' : 'FULL SALES MODE',
+        mode: getModeLabel(),
         notes: 'Glen Growth web app'
     };
 
     try {
-        // Google Apps Script web apps do not expose a browser-readable CORS response.
-        // no-cors allows the POST to reach Apps Script while keeping the UI responsive.
-        await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify(payload),
-            keepalive: true
-        });
-
+        await postToApi(payload);
         console.log(`${actionData.actionType} sent to Google Sheets.`);
     } catch (error) {
         console.error(`Could not send ${actionData.actionType} to Google Sheets:`, error);
     }
+}
+
+function setupDealForm() {
+    const modal = document.getElementById('deal-modal');
+    const form = document.getElementById('deal-form');
+    const closeBtn = document.getElementById('deal-close');
+    const cancelBtn = document.getElementById('deal-cancel');
+    const amountInput = document.getElementById('deal-amount');
+    const costInput = document.getElementById('deal-cost');
+
+    closeBtn?.addEventListener('click', closeDealModal);
+    cancelBtn?.addEventListener('click', closeDealModal);
+    form?.addEventListener('submit', handleDealSubmit);
+    amountInput?.addEventListener('input', updateProfitPreview);
+    costInput?.addEventListener('input', updateProfitPreview);
+
+    modal?.addEventListener('click', (event) => {
+        if (event.target === modal) closeDealModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal?.classList.contains('open')) {
+            closeDealModal();
+        }
+    });
+}
+
+function openDealModal() {
+    const modal = document.getElementById('deal-modal');
+    const errorEl = document.getElementById('deal-error');
+
+    if (!modal) return;
+
+    if (errorEl) errorEl.textContent = '';
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+
+    setTimeout(() => document.getElementById('deal-category')?.focus(), 50);
+}
+
+function closeDealModal() {
+    const modal = document.getElementById('deal-modal');
+    if (!modal) return;
+
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+}
+
+function updateProfitPreview() {
+    const amount = readMoneyInput('deal-amount');
+    const cost = readMoneyInput('deal-cost');
+    const profit = Math.max(amount - cost, 0);
+    const profitEl = document.getElementById('deal-profit');
+
+    if (profitEl) {
+        profitEl.textContent = formatCurrency(profit);
+    }
+}
+
+async function handleDealSubmit(event) {
+    event.preventDefault();
+
+    const category = document.getElementById('deal-category')?.value.trim() || '';
+    const client = document.getElementById('deal-client')?.value.trim() || '';
+    const amount = readMoneyInput('deal-amount');
+    const cost = readMoneyInput('deal-cost');
+    const notes = document.getElementById('deal-notes')?.value.trim() || '';
+    const errorEl = document.getElementById('deal-error');
+    const saveBtn = document.getElementById('deal-save');
+
+    if (!category) {
+        if (errorEl) errorEl.textContent = 'Choose a category.';
+        document.getElementById('deal-category')?.focus();
+        return;
+    }
+
+    if (!(amount > 0)) {
+        if (errorEl) errorEl.textContent = 'Enter a booked amount greater than $0.';
+        document.getElementById('deal-amount')?.focus();
+        return;
+    }
+
+    if (cost < 0 || cost > amount) {
+        if (errorEl) errorEl.textContent = 'Estimated cost must be between $0 and the booked amount.';
+        document.getElementById('deal-cost')?.focus();
+        return;
+    }
+
+    const profit = amount - cost;
+
+    const payload = {
+        action: 'addDeal',
+        category,
+        client,
+        bookedAmount: amount,
+        estimatedCost: cost,
+        estimatedProfit: profit,
+        paymentStatus: 'Not Paid',
+        notes,
+        mode: getModeLabel()
+    };
+
+    if (errorEl) errorEl.textContent = '';
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'SAVING...';
+    }
+
+    try {
+        await postToApi(payload);
+
+        state.xp += actionValues.deal.xp;
+        state.rev += 1;
+        renderUI();
+        animateXP();
+
+        document.getElementById('deal-form')?.reset();
+        updateProfitPreview();
+        closeDealModal();
+
+        console.log('Deal sent to Google Sheets.');
+    } catch (error) {
+        console.error('Could not send deal to Google Sheets:', error);
+        if (errorEl) errorEl.textContent = 'Could not send the deal. Check your connection and try again.';
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'SAVE DEAL +20 XP';
+        }
+    }
+}
+
+async function postToApi(payload) {
+    await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload),
+        keepalive: true
+    });
+}
+
+function getModeLabel() {
+    return currentMode === 'travel' ? 'TRAVEL MODE' : 'FULL SALES MODE';
+}
+
+function readMoneyInput(id) {
+    const raw = document.getElementById(id)?.value;
+    if (raw === '' || raw === undefined || raw === null) return 0;
+
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : 0;
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('en-CA', {
+        style: 'currency',
+        currency: 'CAD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(value);
 }
 
 function renderUI() {
