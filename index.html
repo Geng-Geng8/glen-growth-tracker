@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Glen Growth</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260907-3">
 </head>
 <body>
     <header class="app-header">
@@ -120,6 +120,66 @@
         </section>
     </main>
 
-    <script src="app.js?v=20260907-2"></script>
+    <div class="modal-backdrop" id="deal-modal" aria-hidden="true">
+        <section class="deal-modal-card" role="dialog" aria-modal="true" aria-labelledby="deal-modal-title">
+            <div class="deal-modal-header">
+                <div>
+                    <div class="deal-kicker">REVENUE WIN</div>
+                    <h2 id="deal-modal-title">Book a Deal</h2>
+                </div>
+                <button class="modal-close" id="deal-close" type="button" aria-label="Close deal form">×</button>
+            </div>
+
+            <form id="deal-form" novalidate>
+                <label class="form-field">
+                    <span>Category *</span>
+                    <select id="deal-category" required>
+                        <option value="">Select category</option>
+                        <option value="SHSM">SHSM</option>
+                        <option value="Speaking / Consulting">Speaking / Consulting</option>
+                        <option value="Dance / Workshops">Dance / Workshops</option>
+                        <option value="Other Education">Other Education</option>
+                        <option value="Software">Software</option>
+                    </select>
+                </label>
+
+                <label class="form-field">
+                    <span>Client</span>
+                    <input id="deal-client" type="text" maxlength="120" placeholder="School, board, organization...">
+                </label>
+
+                <div class="form-row">
+                    <label class="form-field">
+                        <span>Booked Amount *</span>
+                        <input id="deal-amount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required>
+                    </label>
+
+                    <label class="form-field">
+                        <span>Estimated Cost</span>
+                        <input id="deal-cost" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00">
+                    </label>
+                </div>
+
+                <div class="profit-preview">
+                    <span>Estimated Profit</span>
+                    <strong id="deal-profit">$0.00</strong>
+                </div>
+
+                <label class="form-field">
+                    <span>Notes</span>
+                    <textarea id="deal-notes" rows="3" maxlength="500" placeholder="Optional details"></textarea>
+                </label>
+
+                <div class="form-error" id="deal-error" role="alert"></div>
+
+                <div class="deal-form-actions">
+                    <button class="deal-cancel-btn" id="deal-cancel" type="button">Cancel</button>
+                    <button class="deal-save-btn" id="deal-save" type="submit">SAVE DEAL +20 XP</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script src="app.js?v=20260907-3"></script>
 </body>
 </html>
