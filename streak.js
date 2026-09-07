@@ -16,7 +16,11 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', loadStreakState);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadStreakState, { once: true });
+    } else {
+        loadStreakState();
+    }
 
     document.addEventListener('click', (event) => {
         const button = event.target.closest('.action-btn');
