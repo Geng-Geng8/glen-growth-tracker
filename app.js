@@ -1,3 +1,5 @@
+const API_URL = 'https://script.google.com/macros/s/AKfycbzI02niw2iGEJKqOw6hfCjY0tRUhPpDZ5xQ64jd5lqGIhuybSnmm-oPWorHfuy7BkYV/exec';
+
 const state = {
     xp: 0,
     contacts: 0,
@@ -106,6 +108,40 @@ function handleActionClick(event) {
     xpEl.classList.remove('bump');
     void xpEl.offsetWidth;
     xpEl.classList.add('bump');
+
+    // Stage 2 connection test: only Qualified Contact writes to Google Sheets.
+    if (actionKey === 'contact') {
+        sendQualifiedContact(actionData);
+    }
+}
+
+async function sendQualifiedContact(actionData) {
+    const payload = {
+        action: 'addAction',
+        actionType: 'Qualified Contact',
+        count: 1,
+        xp: actionData.xp,
+        mode: currentMode === 'travel' ? 'TRAVEL MODE' : 'FULL SALES MODE',
+        notes: 'Glen Growth web app'
+    };
+
+    try {
+        // Apps Script web apps do not provide a browser-readable CORS response.
+        // no-cors allows the POST to be sent without blocking the local UI.
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload),
+            keepalive: true
+        });
+
+        console.log('Qualified Contact sent to Google Sheets.');
+    } catch (error) {
+        console.error('Could not send Qualified Contact to Google Sheets:', error);
+    }
 }
 
 function renderUI() {
