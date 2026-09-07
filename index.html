@@ -13,28 +13,35 @@
     </header>
 
     <main class="app-container">
-        <!-- Date and Mode Section -->
         <section class="status-panel">
             <h2 id="date-display">Loading Date...</h2>
-            
+
             <div class="mode-indicator">
                 <span class="mode-label">CURRENT MODE:</span>
                 <span id="active-mode" class="mode-value">FULL SALES MODE</span>
             </div>
-            
+
             <div class="mode-schedule">
                 <p class="schedule-item" id="schedule-travel">TRAVEL MODE: Sept 9, 2026 - Oct 3, 2026</p>
                 <p class="schedule-item" id="schedule-sales">FULL SALES MODE: Starting Oct 4, 2026</p>
             </div>
         </section>
 
-        <!-- XP Score Section -->
-        <section class="xp-panel">
+        <section class="xp-panel" aria-label="Daily experience points">
             <div class="xp-value" id="xp-display">0</div>
             <div class="xp-label">DAILY XP</div>
         </section>
 
-        <!-- Daily Progress Section -->
+        <section class="daily-score-panel" aria-label="Daily mission score">
+            <div class="daily-score-header">
+                <span class="daily-score-label">DAILY SCORE</span>
+                <span id="daily-score-text" class="daily-score-text">0 / 3 MISSIONS COMPLETE</span>
+            </div>
+            <div class="daily-score-bar-bg" role="progressbar" aria-label="Daily mission completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="daily-score-bar-fill" id="daily-score-bar"></div>
+            </div>
+        </section>
+
         <section class="progress-panel">
             <div class="progress-item" id="progress-contacts-container">
                 <div class="progress-header">
@@ -67,46 +74,45 @@
             </div>
         </section>
 
-        <!-- Action Buttons Section -->
         <section class="actions-panel">
             <h3>LOG ACTION</h3>
             <div class="actions-grid">
-                <button class="action-btn btn-standard" data-action="contact">
+                <button class="action-btn btn-standard" data-action="contact" type="button">
                     <span class="btn-title">Qualified Contact</span>
                     <span class="btn-xp">+1 XP</span>
                 </button>
-                
-                <button class="action-btn btn-standard" data-action="followup">
+
+                <button class="action-btn btn-standard" data-action="followup" type="button">
                     <span class="btn-title">Follow-up</span>
                     <span class="btn-xp">+1 XP</span>
                 </button>
 
-                <button class="action-btn btn-rev" data-action="referral">
+                <button class="action-btn btn-rev" data-action="referral" type="button">
                     <span class="btn-title">Ask for Referral</span>
                     <span class="btn-xp">+3 XP</span>
                 </button>
 
-                <button class="action-btn btn-rev" data-action="software">
+                <button class="action-btn btn-rev" data-action="software" type="button">
                     <span class="btn-title">Software Interview</span>
                     <span class="btn-xp">+3 XP</span>
                 </button>
 
-                <button class="action-btn btn-rev" data-action="dm-convo">
-                    <span class="btn-title">DM Conversation</span>
+                <button class="action-btn btn-rev" data-action="dm-convo" type="button">
+                    <span class="btn-title">Decision-Maker Conversation</span>
                     <span class="btn-xp">+5 XP</span>
                 </button>
 
-                <button class="action-btn btn-rev" data-action="next-step">
+                <button class="action-btn btn-rev" data-action="next-step" type="button">
                     <span class="btn-title">Next Step Scheduled</span>
                     <span class="btn-xp">+5 XP</span>
                 </button>
 
-                <button class="action-btn btn-rev btn-wide" data-action="proposal">
+                <button class="action-btn btn-rev btn-wide" data-action="proposal" type="button">
                     <span class="btn-title">Proposal / Quote Sent</span>
                     <span class="btn-xp">+8 XP</span>
                 </button>
 
-                <button class="action-btn btn-deal btn-wide" data-action="deal">
+                <button class="action-btn btn-deal btn-wide" data-action="deal" type="button">
                     <span class="btn-title">BOOKED DEAL</span>
                     <span class="btn-xp">+20 XP</span>
                 </button>
