@@ -55,8 +55,8 @@
             icon.rel = 'icon';
             document.head.appendChild(icon);
         }
-        icon.type = 'image/jpeg';
-        icon.href = './GGIcon.jpeg?v=20260907-premium2';
+        icon.type = 'image/png';
+        icon.href = './GGLogo2.png?v=20260907-premium3';
     }
 
     function installBrandStyles() {
@@ -69,43 +69,34 @@
                 min-width: 0;
                 display: inline-flex;
                 align-items: center;
-                gap: 10px;
+                gap: 9px;
             }
 
             .app-brand-icon {
-                width: 30px;
-                height: 30px;
-                flex: 0 0 30px;
+                width: 28px;
+                height: 28px;
+                flex: 0 0 28px;
                 display: block;
-                object-fit: cover;
-                border-radius: 9px;
-                border: 1px solid rgba(255,255,255,0.11);
-                box-shadow:
-                    0 0 0 1px rgba(202,255,0,0.035),
-                    0 6px 18px rgba(0,0,0,0.34),
-                    0 0 18px rgba(202,255,0,0.055);
-                transition:
-                    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-                    box-shadow 220ms ease;
-            }
-
-            @media (hover: hover) and (pointer: fine) {
-                .app-brand:hover .app-brand-icon {
-                    transform: translateY(-1px) scale(1.035);
-                    box-shadow:
-                        0 0 0 1px rgba(202,255,0,0.11),
-                        0 8px 22px rgba(0,0,0,0.38),
-                        0 0 22px rgba(202,255,0,0.09);
-                }
+                object-fit: contain;
+                object-position: center;
+                border: 0;
+                border-radius: 6px;
+                background: transparent;
+                box-shadow: none;
+                filter: none;
+                transform: none;
+                image-rendering: auto;
+                user-select: none;
+                -webkit-user-drag: none;
             }
 
             @media (max-width: 340px) {
                 .app-brand { gap: 8px; }
                 .app-brand-icon {
-                    width: 27px;
-                    height: 27px;
-                    flex-basis: 27px;
-                    border-radius: 8px;
+                    width: 26px;
+                    height: 26px;
+                    flex-basis: 26px;
+                    border-radius: 5px;
                 }
             }
         `;
@@ -201,7 +192,7 @@
                 card.querySelector('.system-health-label')?.textContent?.trim() === 'App Build'
             );
             const value = buildCard?.querySelector('.system-health-value');
-            if (value) value.textContent = '2026.09.07-premium2';
+            if (value) value.textContent = '2026.09.07-premium3';
         };
 
         updateBuild();
