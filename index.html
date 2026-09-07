@@ -35,13 +35,8 @@
             color: #000;
         }
 
-        .app-view {
-            display: none;
-        }
-
-        .app-view.active {
-            display: block;
-        }
+        .app-view { display: none; }
+        .app-view.active { display: block; }
 
         .week-hero {
             margin-bottom: 18px;
@@ -141,9 +136,7 @@
             border-radius: 999px;
         }
 
-        .week-score-bar-bg {
-            height: 10px;
-        }
+        .week-score-bar-bg { height: 10px; }
 
         .week-score-bar-fill,
         .week-metric-bar-fill {
@@ -155,9 +148,7 @@
         }
 
         .week-score-bar-fill.complete,
-        .week-metric-bar-fill.complete {
-            background: #39ff14;
-        }
+        .week-metric-bar-fill.complete { background: #39ff14; }
 
         .week-metrics-panel {
             padding: 20px;
@@ -174,13 +165,8 @@
             letter-spacing: 1.3px;
         }
 
-        .week-metric {
-            margin-bottom: 20px;
-        }
-
-        .week-metric:last-child {
-            margin-bottom: 0;
-        }
+        .week-metric { margin-bottom: 20px; }
+        .week-metric:last-child { margin-bottom: 0; }
 
         .week-metric-head {
             display: flex;
@@ -203,13 +189,8 @@
             font-weight: 800;
         }
 
-        .week-metric-value.done {
-            color: #39ff14;
-        }
-
-        .week-metric-bar-bg {
-            height: 11px;
-        }
+        .week-metric-value.done { color: #39ff14; }
+        .week-metric-bar-bg { height: 11px; }
 
         .week-empty {
             color: #999;
@@ -225,9 +206,7 @@
             }
 
             .week-xp-block,
-            #week-score-text {
-                text-align: left;
-            }
+            #week-score-text { text-align: left; }
         }
     </style>
 </head>
@@ -246,12 +225,10 @@
         <section id="today-view" class="app-view active">
             <section class="status-panel">
                 <h2 id="date-display">Loading Date...</h2>
-
                 <div class="mode-indicator">
                     <span class="mode-label">CURRENT MODE:</span>
                     <span id="active-mode" class="mode-value">FULL SALES MODE</span>
                 </div>
-
                 <div class="mode-schedule">
                     <p class="schedule-item" id="schedule-travel">TRAVEL MODE: Sept 9, 2026 - Oct 3, 2026</p>
                     <p class="schedule-item" id="schedule-sales">FULL SALES MODE: Starting Oct 4, 2026</p>
@@ -291,9 +268,7 @@
                         <span>Qualified Contacts</span>
                         <span class="progress-text"><span id="val-contacts">0</span> / <span id="target-contacts">3</span> <span class="check" id="check-contacts"></span></span>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="bar-contacts"></div>
-                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-contacts"></div></div>
                 </div>
 
                 <div class="progress-item" id="progress-followups-container">
@@ -301,9 +276,7 @@
                         <span>Follow-ups</span>
                         <span class="progress-text"><span id="val-followups">0</span> / <span id="target-followups">3</span> <span class="check" id="check-followups"></span></span>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="bar-followups"></div>
-                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-followups"></div></div>
                 </div>
 
                 <div class="progress-item" id="progress-rev-container">
@@ -311,54 +284,21 @@
                         <span>Revenue-Moving Actions</span>
                         <span class="progress-text"><span id="val-rev">0</span> / <span id="target-rev">1</span> <span class="check" id="check-rev"></span></span>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="bar-rev"></div>
-                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-rev"></div></div>
                 </div>
             </section>
 
             <section class="actions-panel">
                 <h3>LOG ACTION</h3>
                 <div class="actions-grid">
-                    <button class="action-btn btn-standard" data-action="contact" type="button">
-                        <span class="btn-title">Qualified Contact</span>
-                        <span class="btn-xp">+1 XP</span>
-                    </button>
-
-                    <button class="action-btn btn-standard" data-action="followup" type="button">
-                        <span class="btn-title">Follow-up</span>
-                        <span class="btn-xp">+1 XP</span>
-                    </button>
-
-                    <button class="action-btn btn-rev" data-action="referral" type="button">
-                        <span class="btn-title">Ask for Referral</span>
-                        <span class="btn-xp">+3 XP</span>
-                    </button>
-
-                    <button class="action-btn btn-rev" data-action="software" type="button">
-                        <span class="btn-title">Software Interview</span>
-                        <span class="btn-xp">+3 XP</span>
-                    </button>
-
-                    <button class="action-btn btn-rev" data-action="dm-convo" type="button">
-                        <span class="btn-title">Decision-Maker Conversation</span>
-                        <span class="btn-xp">+5 XP</span>
-                    </button>
-
-                    <button class="action-btn btn-rev" data-action="next-step" type="button">
-                        <span class="btn-title">Next Step Scheduled</span>
-                        <span class="btn-xp">+5 XP</span>
-                    </button>
-
-                    <button class="action-btn btn-rev btn-wide" data-action="proposal" type="button">
-                        <span class="btn-title">Proposal / Quote Sent</span>
-                        <span class="btn-xp">+8 XP</span>
-                    </button>
-
-                    <button class="action-btn btn-deal btn-wide" data-action="deal" type="button">
-                        <span class="btn-title">BOOKED DEAL</span>
-                        <span class="btn-xp">+20 XP</span>
-                    </button>
+                    <button class="action-btn btn-standard" data-action="contact" type="button"><span class="btn-title">Qualified Contact</span><span class="btn-xp">+1 XP</span></button>
+                    <button class="action-btn btn-standard" data-action="followup" type="button"><span class="btn-title">Follow-up</span><span class="btn-xp">+1 XP</span></button>
+                    <button class="action-btn btn-rev" data-action="referral" type="button"><span class="btn-title">Ask for Referral</span><span class="btn-xp">+3 XP</span></button>
+                    <button class="action-btn btn-rev" data-action="software" type="button"><span class="btn-title">Software Interview</span><span class="btn-xp">+3 XP</span></button>
+                    <button class="action-btn btn-rev" data-action="dm-convo" type="button"><span class="btn-title">Decision-Maker Conversation</span><span class="btn-xp">+5 XP</span></button>
+                    <button class="action-btn btn-rev" data-action="next-step" type="button"><span class="btn-title">Next Step Scheduled</span><span class="btn-xp">+5 XP</span></button>
+                    <button class="action-btn btn-rev btn-wide" data-action="proposal" type="button"><span class="btn-title">Proposal / Quote Sent</span><span class="btn-xp">+8 XP</span></button>
+                    <button class="action-btn btn-deal btn-wide" data-action="deal" type="button"><span class="btn-title">BOOKED DEAL</span><span class="btn-xp">+20 XP</span></button>
                 </div>
             </section>
         </section>
@@ -393,9 +333,7 @@
 
             <section class="week-metrics-panel">
                 <div class="week-metrics-heading">WEEKLY TARGETS</div>
-                <div id="week-metrics">
-                    <p class="week-empty">Open the Week tab to load your current progress.</p>
-                </div>
+                <div id="week-metrics"><p class="week-empty">Open the Week tab to load your current progress.</p></div>
             </section>
         </section>
     </main>
@@ -433,7 +371,6 @@
                         <span>Booked Amount *</span>
                         <input id="deal-amount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required>
                     </label>
-
                     <label class="form-field">
                         <span>Estimated Cost</span>
                         <input id="deal-cost" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00">
@@ -451,7 +388,6 @@
                 </label>
 
                 <div class="form-error" id="deal-error" role="alert"></div>
-
                 <div class="deal-form-actions">
                     <button class="deal-cancel-btn" id="deal-cancel" type="button">Cancel</button>
                     <button class="deal-save-btn" id="deal-save" type="submit">SAVE DEAL +20 XP</button>
@@ -461,5 +397,6 @@
     </div>
 
     <script src="app.js?v=20260907-5"></script>
+    <script src="money.js?v=20260907-1"></script>
 </body>
 </html>
