@@ -1,219 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="premium-ui">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#080908">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Glen Growth">
+    <meta name="description" content="Business development, revenue and growth tracker.">
     <title>Glen Growth</title>
-    <link rel="stylesheet" href="styles.css?v=20260907-3">
-    <style>
-        .view-tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 22px;
-            padding: 4px;
-            background: #121212;
-            border: 1px solid #2a2a2a;
-            border-radius: 14px;
-        }
-
-        .view-tab {
-            min-height: 44px;
-            border: 0;
-            border-radius: 10px;
-            background: transparent;
-            color: #999;
-            font: inherit;
-            font-size: 0.85rem;
-            font-weight: 900;
-            letter-spacing: 0.7px;
-            cursor: pointer;
-        }
-
-        .view-tab.active {
-            background: #ccff00;
-            color: #000;
-        }
-
-        .app-view { display: none; }
-        .app-view.active { display: block; }
-
-        .week-hero {
-            margin-bottom: 18px;
-            padding: 20px;
-            border: 1px solid #2a2a2a;
-            border-radius: 16px;
-            background: #121212;
-        }
-
-        .week-hero-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: flex-start;
-            margin-bottom: 18px;
-        }
-
-        .week-kicker {
-            margin-bottom: 5px;
-            color: #999;
-            font-size: 0.72rem;
-            font-weight: 900;
-            letter-spacing: 1.3px;
-        }
-
-        #week-range {
-            font-size: 1.1rem;
-            font-weight: 800;
-        }
-
-        .week-xp-block {
-            text-align: right;
-            flex-shrink: 0;
-        }
-
-        #week-xp {
-            display: block;
-            color: #ccff00;
-            font-size: 2rem;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        .week-xp-label {
-            display: block;
-            margin-top: 5px;
-            color: #999;
-            font-size: 0.68rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-
-        .week-meta {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-            color: #999;
-            font-size: 0.76rem;
-            font-weight: 700;
-        }
-
-        .week-score-panel {
-            margin-bottom: 18px;
-            padding: 16px 18px;
-            background: rgba(204, 255, 0, 0.06);
-            border: 1px solid rgba(204, 255, 0, 0.24);
-            border-radius: 14px;
-        }
-
-        .week-score-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .week-score-label {
-            color: #ccff00;
-            font-size: 0.75rem;
-            font-weight: 900;
-            letter-spacing: 1.4px;
-        }
-
-        #week-score-text {
-            font-size: 0.78rem;
-            font-weight: 800;
-            text-align: right;
-        }
-
-        .week-score-bar-bg,
-        .week-metric-bar-bg {
-            width: 100%;
-            overflow: hidden;
-            background: #000;
-            border-radius: 999px;
-        }
-
-        .week-score-bar-bg { height: 10px; }
-
-        .week-score-bar-fill,
-        .week-metric-bar-fill {
-            width: 0;
-            height: 100%;
-            border-radius: 999px;
-            background: #ccff00;
-            transition: width 0.3s ease;
-        }
-
-        .week-score-bar-fill.complete,
-        .week-metric-bar-fill.complete { background: #39ff14; }
-
-        .week-metrics-panel {
-            padding: 20px;
-            border: 1px solid #2a2a2a;
-            border-radius: 16px;
-            background: #121212;
-        }
-
-        .week-metrics-heading {
-            margin-bottom: 18px;
-            color: #999;
-            font-size: 0.8rem;
-            font-weight: 900;
-            letter-spacing: 1.3px;
-        }
-
-        .week-metric { margin-bottom: 20px; }
-        .week-metric:last-child { margin-bottom: 0; }
-
-        .week-metric-head {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 9px;
-        }
-
-        .week-metric-name {
-            min-width: 0;
-            font-size: 0.86rem;
-            font-weight: 700;
-        }
-
-        .week-metric-value {
-            flex-shrink: 0;
-            color: #999;
-            font-size: 0.82rem;
-            font-weight: 800;
-        }
-
-        .week-metric-value.done { color: #39ff14; }
-        .week-metric-bar-bg { height: 11px; }
-
-        .week-empty {
-            color: #999;
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 340px) {
-            .week-hero-top,
-            .week-score-header {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .week-xp-block,
-            #week-score-text { text-align: left; }
-        }
-    </style>
+    <link rel="manifest" href="manifest.webmanifest?v=20260907-premium1">
+    <link rel="apple-touch-icon" href="GGIcon.jpeg?v=20260907-premium1">
+    <link rel="stylesheet" href="styles.css?v=20260907-premium1">
 </head>
 <body>
     <header class="app-header">
         <h1>GLEN GROWTH</h1>
-        <div class="streak-badge">🔥 <span id="streak-count">5</span> Day Streak</div>
+        <div class="streak-badge">🔥 <span id="streak-count">—</span> Day Streak</div>
     </header>
 
     <main class="app-container">
@@ -399,5 +203,10 @@
     <script src="app.js?v=20260907-5"></script>
     <script src="money.js?v=20260907-1"></script>
     <script src="wins.js?v=20260907-1"></script>
+    <script src="streak.js?v=20260907-premium1"></script>
+    <script src="pwa-v3.js?v=20260907-premium1"></script>
+    <script src="offline-timestamp.js?v=20260907-1"></script>
+    <script src="hardening-v1.js?v=20260907-premium1"></script>
+    <script src="premium-ui.js?v=20260907-premium1"></script>
 </body>
 </html>
