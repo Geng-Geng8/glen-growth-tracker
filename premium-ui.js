@@ -21,6 +21,7 @@
 
     root.classList.add('premium-ui');
     setThemeChrome();
+    ensureFavicon();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init, { once: true });
@@ -29,6 +30,7 @@
     }
 
     function init() {
+        installBrandStyles();
         bindPointerGlow();
         bindActionFeedback();
         bindViewMotion();
@@ -44,6 +46,70 @@
             document.head.appendChild(meta);
         }
         meta.content = '#080908';
+    }
+
+    function ensureFavicon() {
+        let icon = document.querySelector('link[rel="icon"]');
+        if (!icon) {
+            icon = document.createElement('link');
+            icon.rel = 'icon';
+            document.head.appendChild(icon);
+        }
+        icon.type = 'image/jpeg';
+        icon.href = './GGIcon.jpeg?v=20260907-premium2';
+    }
+
+    function installBrandStyles() {
+        if (document.getElementById('glen-growth-brand-styles')) return;
+
+        const style = document.createElement('style');
+        style.id = 'glen-growth-brand-styles';
+        style.textContent = `
+            .app-brand {
+                min-width: 0;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .app-brand-icon {
+                width: 30px;
+                height: 30px;
+                flex: 0 0 30px;
+                display: block;
+                object-fit: cover;
+                border-radius: 9px;
+                border: 1px solid rgba(255,255,255,0.11);
+                box-shadow:
+                    0 0 0 1px rgba(202,255,0,0.035),
+                    0 6px 18px rgba(0,0,0,0.34),
+                    0 0 18px rgba(202,255,0,0.055);
+                transition:
+                    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                    box-shadow 220ms ease;
+            }
+
+            @media (hover: hover) and (pointer: fine) {
+                .app-brand:hover .app-brand-icon {
+                    transform: translateY(-1px) scale(1.035);
+                    box-shadow:
+                        0 0 0 1px rgba(202,255,0,0.11),
+                        0 8px 22px rgba(0,0,0,0.38),
+                        0 0 22px rgba(202,255,0,0.09);
+                }
+            }
+
+            @media (max-width: 340px) {
+                .app-brand { gap: 8px; }
+                .app-brand-icon {
+                    width: 27px;
+                    height: 27px;
+                    flex-basis: 27px;
+                    border-radius: 8px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     function bindPointerGlow() {
@@ -135,7 +201,7 @@
                 card.querySelector('.system-health-label')?.textContent?.trim() === 'App Build'
             );
             const value = buildCard?.querySelector('.system-health-value');
-            if (value) value.textContent = '2026.09.07-premium1';
+            if (value) value.textContent = '2026.09.07-premium2';
         };
 
         updateBuild();
