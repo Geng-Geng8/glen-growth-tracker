@@ -72,3 +72,12 @@ function renderStreak(data) {
         );
     }
 }
+
+(function loadPwaFoundation() {
+    if (document.querySelector('script[data-glen-pwa]')) return;
+
+    const script = document.createElement('script');
+    script.src = './pwa.js?v=20260907-1';
+    script.dataset.glenPwa = 'true';
+    document.body.appendChild(script);
+})();
