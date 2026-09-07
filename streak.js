@@ -73,11 +73,11 @@ function renderStreak(data) {
     }
 }
 
-(function loadPwaFoundation() {
-    if (document.querySelector('script[data-glen-pwa]')) return;
+(function loadPwaV2() {
+    if (document.querySelector('script[data-glen-pwa-v2]')) return;
 
     const script = document.createElement('script');
-    script.src = './pwa.js?v=20260907-1';
-    script.dataset.glenPwa = 'true';
+    script.src = './pwa-v2.js?v=20260907-1';
+    script.dataset.glenPwaV2 = 'true';
     document.body.appendChild(script);
 })();
