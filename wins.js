@@ -154,6 +154,38 @@
             background: rgba(57, 255, 20, 0.06);
         }
 
+        .win-paid-date {
+            margin-top: 8px;
+            color: #39ff14;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        .win-mark-paid {
+            width: 100%;
+            min-height: 46px;
+            margin-top: 14px;
+            border: 1px solid rgba(57, 255, 20, 0.35);
+            border-radius: 11px;
+            background: rgba(57, 255, 20, 0.08);
+            color: #39ff14;
+            font: inherit;
+            font-size: 0.76rem;
+            font-weight: 900;
+            letter-spacing: 0.7px;
+            cursor: pointer;
+        }
+
+        .win-mark-paid:hover,
+        .win-mark-paid:focus-visible {
+            background: rgba(57, 255, 20, 0.14);
+        }
+
+        .win-mark-paid:disabled {
+            opacity: 0.55;
+            cursor: wait;
+        }
+
         .wins-empty {
             color: #999;
             font-size: 0.85rem;
@@ -335,8 +367,92 @@ function renderWinsFeed(wins) {
 
         bottom.append(profit, status);
         card.append(head, meta, bottom);
+
+        if (paid && win.datePaid) {
+            const paidDate = document.createElement('div');
+            paidDate.className = 'win-paid-date';
+            paidDate.textContent = `PAYMENT COLLECTED ${formatWinDate(win.datePaid).toUpperCase()}`;
+            card.appendChild(paidDate);
+        }
+
+        if (!paid && win.dealId) {
+            const payButton = document.createElement('button');
+            payButton.className = 'win-mark-paid';
+            payButton.type = 'button';
+            payButton.textContent = 'MARK PAID +10 XP';
+            payButton.addEventListener('click', () => markWinPaid(win, payButton));
+            card.appendChild(payButton);
+        }
+
         container.appendChild(card);
     });
+}
+
+async function markWinPaid(win, button) {
+    const dealId = String(win.dealId || '').trim();
+    if (!dealId) {
+        setWinsSyncStatus('DEAL ID MISSING');
+        return;
+    }
+
+    const client = String(win.client || 'this deal');
+    const amount = formatCurrency(safeNumber(win.bookedAmount));
+
+    const confirmed = window.confirm(`Mark ${client} — ${amount} as paid?`);
+    if (!confirmed) return;
+
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = 'MARKING PAID...';
+    setWinsSyncStatus('UPDATING PAYMENT...');
+
+    try {
+        await postToApi({
+            action: 'markDealPaid',
+            dealId,
+            mode: getModeLabel()
+        });
+
+        const updated = await waitForPaidDeal(dealId);
+        renderWins(updated);
+        setWinsSyncStatus('PAYMENT COLLECTED +10 XP');
+
+        await Promise.allSettled([
+            loadTodayState(),
+            loadWeekState(),
+            loadMoneyState()
+        ]);
+    } catch (error) {
+        console.error('Could not mark payment as collected:', error);
+        setWinsSyncStatus('PAYMENT UPDATE FAILED');
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+}
+
+async function waitForPaidDeal(dealId) {
+    let lastData = null;
+
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+        await delay(700);
+
+        const data = await jsonpRequest({ action: 'getWins' });
+        if (!data || data.ok !== true) continue;
+
+        lastData = data;
+        const wins = Array.isArray(data.wins) ? data.wins : [];
+        const match = wins.find((win) => String(win.dealId || '') === dealId);
+
+        if (match && isPaidWin(match.paymentStatus)) {
+            return data;
+        }
+    }
+
+    throw new Error(lastData ? 'Payment update was not confirmed yet.' : 'Could not reload wins.');
+}
+
+function delay(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 function formatWinDate(value) {
