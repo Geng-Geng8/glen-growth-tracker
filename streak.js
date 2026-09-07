@@ -72,26 +72,3 @@ function renderStreak(data) {
         );
     }
 }
-
-(function loadOfflineSystem() {
-    if (!document.querySelector('script[data-glen-pwa-v3]')) {
-        const pwa = document.createElement('script');
-        pwa.src = './pwa-v3.js?v=20260907-1';
-        pwa.dataset.glenPwaV3 = 'true';
-        document.body.appendChild(pwa);
-    }
-
-    if (!document.querySelector('script[data-glen-offline-timestamp]')) {
-        const timestamp = document.createElement('script');
-        timestamp.src = './offline-timestamp.js?v=20260907-1';
-        timestamp.dataset.glenOfflineTimestamp = 'true';
-        document.body.appendChild(timestamp);
-    }
-
-    if (!document.querySelector('script[data-glen-hardening-v1]')) {
-        const hardening = document.createElement('script');
-        hardening.src = './hardening-v1.js?v=20260907-1';
-        hardening.dataset.glenHardeningV1 = 'true';
-        document.body.appendChild(hardening);
-    }
-})();
