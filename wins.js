@@ -359,3 +359,9 @@ function setWinsText(id, value) {
     const element = document.getElementById(id);
     if (element) element.textContent = value;
 }
+
+(function loadStreakModule() {
+    const script = document.createElement('script');
+    script.src = 'streak.js?v=20260907-2';
+    document.body.appendChild(script);
+})();
