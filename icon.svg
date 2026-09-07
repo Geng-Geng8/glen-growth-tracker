@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Glen Growth">
+  <rect width="512" height="512" rx="112" fill="#050505"/>
+  <rect x="92" y="316" width="62" height="96" rx="18" fill="#ffffff" opacity="0.88"/>
+  <rect x="185" y="252" width="62" height="160" rx="18" fill="#ffffff" opacity="0.88"/>
+  <rect x="278" y="184" width="62" height="228" rx="18" fill="#ffffff" opacity="0.88"/>
+  <path d="M112 264L214 170L292 228L398 112" fill="none" stroke="#ccff00" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M329 111H401V183" fill="none" stroke="#ccff00" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
