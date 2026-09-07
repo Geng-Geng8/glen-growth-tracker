@@ -87,4 +87,11 @@ function renderStreak(data) {
         timestamp.dataset.glenOfflineTimestamp = 'true';
         document.body.appendChild(timestamp);
     }
+
+    if (!document.querySelector('script[data-glen-hardening-v1]')) {
+        const hardening = document.createElement('script');
+        hardening.src = './hardening-v1.js?v=20260907-1';
+        hardening.dataset.glenHardeningV1 = 'true';
+        document.body.appendChild(hardening);
+    }
 })();
