@@ -15,14 +15,54 @@ let targets = {
 };
 
 const actionValues = {
-    'contact':   { xp: 1, type: 'contacts' },
-    'followup':  { xp: 1, type: 'followups' },
-    'referral':  { xp: 3, type: 'rev' },
-    'software':  { xp: 3, type: 'rev' },
-    'dm-convo':  { xp: 5, type: 'rev' },
-    'next-step': { xp: 5, type: 'rev' },
-    'proposal':  { xp: 8, type: 'rev' },
-    'deal':      { xp: 20, type: 'rev' }
+    'contact': {
+        xp: 1,
+        type: 'contacts',
+        actionType: 'Qualified Contact',
+        persist: true
+    },
+    'followup': {
+        xp: 1,
+        type: 'followups',
+        actionType: 'Follow-up',
+        persist: true
+    },
+    'referral': {
+        xp: 3,
+        type: 'rev',
+        actionType: 'Referral / Introduction Asked',
+        persist: true
+    },
+    'software': {
+        xp: 3,
+        type: 'rev',
+        actionType: 'Software Interview',
+        persist: true
+    },
+    'dm-convo': {
+        xp: 5,
+        type: 'rev',
+        actionType: 'Decision-Maker Conversation',
+        persist: true
+    },
+    'next-step': {
+        xp: 5,
+        type: 'rev',
+        actionType: 'Next Step Scheduled',
+        persist: true
+    },
+    'proposal': {
+        xp: 8,
+        type: 'rev',
+        actionType: 'Proposal / Quote Sent',
+        persist: true
+    },
+    'deal': {
+        xp: 20,
+        type: 'rev',
+        actionType: 'Deal Booked',
+        persist: false
+    }
 };
 
 function init() {
@@ -109,16 +149,15 @@ function handleActionClick(event) {
     void xpEl.offsetWidth;
     xpEl.classList.add('bump');
 
-    // Stage 2 connection test: only Qualified Contact writes to Google Sheets.
-    if (actionKey === 'contact') {
-        sendQualifiedContact(actionData);
+    if (actionData.persist) {
+        sendAction(actionData);
     }
 }
 
-async function sendQualifiedContact(actionData) {
+async function sendAction(actionData) {
     const payload = {
         action: 'addAction',
-        actionType: 'Qualified Contact',
+        actionType: actionData.actionType,
         count: 1,
         xp: actionData.xp,
         mode: currentMode === 'travel' ? 'TRAVEL MODE' : 'FULL SALES MODE',
@@ -126,8 +165,8 @@ async function sendQualifiedContact(actionData) {
     };
 
     try {
-        // Apps Script web apps do not provide a browser-readable CORS response.
-        // no-cors allows the POST to be sent without blocking the local UI.
+        // Google Apps Script web apps do not expose a browser-readable CORS response.
+        // no-cors allows the POST to reach Apps Script while keeping the UI responsive.
         await fetch(API_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -138,9 +177,9 @@ async function sendQualifiedContact(actionData) {
             keepalive: true
         });
 
-        console.log('Qualified Contact sent to Google Sheets.');
+        console.log(`${actionData.actionType} sent to Google Sheets.`);
     } catch (error) {
-        console.error('Could not send Qualified Contact to Google Sheets:', error);
+        console.error(`Could not send ${actionData.actionType} to Google Sheets:`, error);
     }
 }
 
