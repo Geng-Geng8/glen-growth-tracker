@@ -31,12 +31,10 @@ function init() {
 
 function setupDateAndMode() {
     const today = new Date();
-    
-    // Format Display
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('date-display').textContent = today.toLocaleDateString('en-US', options);
 
-    // Calculate YYYYMMDD integer for safe, timezone-agnostic comparisons
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('date-display').textContent = today.toLocaleDateString('en-CA', options);
+
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
     const day = today.getDate();
@@ -47,7 +45,9 @@ function setupDateAndMode() {
     const scheduleSales = document.getElementById('schedule-sales');
     const revContainer = document.getElementById('progress-rev-container');
 
-    // Sept 9, 2026 through Oct 3, 2026
+    scheduleTravel?.classList.remove('active-schedule');
+    scheduleSales?.classList.remove('active-schedule');
+
     if (dateNum >= 20260909 && dateNum <= 20261003) {
         currentMode = 'travel';
         targets.contacts = 1;
@@ -56,12 +56,10 @@ function setupDateAndMode() {
 
         modeEl.textContent = 'TRAVEL MODE';
         modeEl.style.color = 'var(--electric-lime)';
-        
-        if (scheduleTravel) scheduleTravel.classList.add('active-schedule');
+
+        scheduleTravel?.classList.add('active-schedule');
         if (revContainer) revContainer.style.display = 'none';
-        
     } else {
-        // Oct 4, 2026 onward (and gracefully handles dates before Sept 9 as well)
         currentMode = 'sales';
         targets.contacts = 3;
         targets.followups = 3;
@@ -69,45 +67,44 @@ function setupDateAndMode() {
 
         modeEl.textContent = 'FULL SALES MODE';
         modeEl.style.color = 'var(--neon-green)';
-        
-        if (scheduleSales) scheduleSales.classList.add('active-schedule');
+
+        scheduleSales?.classList.add('active-schedule');
+        if (revContainer) revContainer.style.display = '';
     }
 
-    // Initialize HTML targets
     document.getElementById('target-contacts').textContent = targets.contacts;
     document.getElementById('target-followups').textContent = targets.followups;
-    
+
     const targetRev = document.getElementById('target-rev');
     if (targetRev) targetRev.textContent = targets.rev;
 }
 
 function setupEventListeners() {
-    document.querySelectorAll('.action-btn').forEach(btn => {
+    document.querySelectorAll('.action-btn').forEach((btn) => {
         btn.addEventListener('click', handleActionClick);
     });
 }
 
-function handleActionClick(e) {
-    const btn = e.currentTarget;
+function handleActionClick(event) {
+    const btn = event.currentTarget;
     const actionKey = btn.getAttribute('data-action');
     const actionData = actionValues[actionKey];
 
     if (!actionData) return;
 
-    // Update in-memory state
     state.xp += actionData.xp;
-    state[actionData.type]++;
+    state[actionData.type] += 1;
 
     renderUI();
 
-    // Subtle button depression
     btn.style.transform = 'scale(0.94)';
-    setTimeout(() => { btn.style.transform = 'scale(1)'; }, 120);
+    setTimeout(() => {
+        btn.style.transform = 'scale(1)';
+    }, 120);
 
-    // Subtle XP bump
     const xpEl = document.getElementById('xp-display');
     xpEl.classList.remove('bump');
-    void xpEl.offsetWidth; // Trigger DOM reflow to restart CSS animation
+    void xpEl.offsetWidth;
     xpEl.classList.add('bump');
 }
 
@@ -116,28 +113,29 @@ function renderUI() {
 
     updateProgressRow('contacts', state.contacts, targets.contacts);
     updateProgressRow('followups', state.followups, targets.followups);
-    
+
     if (currentMode === 'sales') {
         updateProgressRow('rev', state.rev, targets.rev);
     }
+
+    updateDailyScore();
 }
 
 function updateProgressRow(id, currentVal, targetVal) {
     const valEl = document.getElementById(`val-${id}`);
     const bar = document.getElementById(`bar-${id}`);
     const checkEl = document.getElementById(`check-${id}`);
-    
+
     if (!valEl || !bar || !checkEl) return;
 
     valEl.textContent = currentVal;
-    
-    // Scale progress percentage visually, capping at 100%
-    let percentage = targetVal > 0 ? (currentVal / targetVal) * 100 : 100;
-    if (percentage > 100) percentage = 100;
-    
+
+    const percentage = targetVal > 0
+        ? Math.min((currentVal / targetVal) * 100, 100)
+        : 100;
+
     bar.style.width = `${percentage}%`;
 
-    // Completion feedback
     if (currentVal >= targetVal && targetVal > 0) {
         bar.classList.add('complete');
         checkEl.textContent = '✓';
@@ -147,5 +145,36 @@ function updateProgressRow(id, currentVal, targetVal) {
     }
 }
 
-// Bootstrap application on load
+function updateDailyScore() {
+    const missions = [
+        { current: state.contacts, target: targets.contacts },
+        { current: state.followups, target: targets.followups }
+    ];
+
+    if (targets.rev > 0) {
+        missions.push({ current: state.rev, target: targets.rev });
+    }
+
+    const completed = missions.filter((mission) => mission.current >= mission.target).length;
+    const total = missions.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    const scoreText = document.getElementById('daily-score-text');
+    const scoreBar = document.getElementById('daily-score-bar');
+    const scoreBarBg = document.querySelector('.daily-score-bar-bg');
+
+    if (scoreText) {
+        scoreText.textContent = `${completed} / ${total} MISSIONS COMPLETE`;
+    }
+
+    if (scoreBar) {
+        scoreBar.style.width = `${percentage}%`;
+        scoreBar.classList.toggle('complete', completed === total && total > 0);
+    }
+
+    if (scoreBarBg) {
+        scoreBarBg.setAttribute('aria-valuenow', String(percentage));
+    }
+}
+
 document.addEventListener('DOMContentLoaded', init);
