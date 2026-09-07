@@ -73,11 +73,18 @@ function renderStreak(data) {
     }
 }
 
-(function loadPwaV2() {
-    if (document.querySelector('script[data-glen-pwa-v2]')) return;
+(function loadOfflineSystem() {
+    if (!document.querySelector('script[data-glen-pwa-v2]')) {
+        const pwa = document.createElement('script');
+        pwa.src = './pwa-v2.js?v=20260907-1';
+        pwa.dataset.glenPwaV2 = 'true';
+        document.body.appendChild(pwa);
+    }
 
-    const script = document.createElement('script');
-    script.src = './pwa-v2.js?v=20260907-1';
-    script.dataset.glenPwaV2 = 'true';
-    document.body.appendChild(script);
+    if (!document.querySelector('script[data-glen-offline-timestamp]')) {
+        const timestamp = document.createElement('script');
+        timestamp.src = './offline-timestamp.js?v=20260907-1';
+        timestamp.dataset.glenOfflineTimestamp = 'true';
+        document.body.appendChild(timestamp);
+    }
 })();
