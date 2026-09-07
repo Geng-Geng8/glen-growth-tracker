@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'glen-growth-shell-v4-premium-20260907';
+const SHELL_CACHE = 'glen-growth-shell-v5-logo2-20260907';
 const NAVIGATION_TIMEOUT_MS = 4500;
 
 const SHELL_FILES = [
@@ -16,7 +16,7 @@ const SHELL_FILES = [
   './premium-ui.js',
   './manifest.webmanifest',
   './icon.svg',
-  './GGIcon.jpeg'
+  './GGLogo2.png'
 ];
 
 self.addEventListener('install', (event) => {
