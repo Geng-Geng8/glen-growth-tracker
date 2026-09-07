@@ -9,7 +9,7 @@ const SHELL_FILES = [
   './money.js',
   './wins.js',
   './streak.js',
-  './pwa-v2.js',
+  './pwa-v3.js',
   './offline-queue-v2.js',
   './offline-timestamp.js',
   './hardening-v1.js',
