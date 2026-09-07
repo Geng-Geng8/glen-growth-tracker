@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'glen-growth-shell-v3-final-20260907';
+const SHELL_CACHE = 'glen-growth-shell-v4-premium-20260907';
 const NAVIGATION_TIMEOUT_MS = 4500;
 
 const SHELL_FILES = [
@@ -13,6 +13,7 @@ const SHELL_FILES = [
   './offline-queue-v2.js',
   './offline-timestamp.js',
   './hardening-v1.js',
+  './premium-ui.js',
   './manifest.webmanifest',
   './icon.svg',
   './GGIcon.jpeg'
