@@ -74,10 +74,10 @@ function renderStreak(data) {
 }
 
 (function loadOfflineSystem() {
-    if (!document.querySelector('script[data-glen-pwa-v2]')) {
+    if (!document.querySelector('script[data-glen-pwa-v3]')) {
         const pwa = document.createElement('script');
-        pwa.src = './pwa-v2.js?v=20260907-1';
-        pwa.dataset.glenPwaV2 = 'true';
+        pwa.src = './pwa-v3.js?v=20260907-1';
+        pwa.dataset.glenPwaV3 = 'true';
         document.body.appendChild(pwa);
     }
 
