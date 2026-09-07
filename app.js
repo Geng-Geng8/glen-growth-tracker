@@ -70,6 +70,7 @@ const actionValues = {
 
 function init() {
     setupDateAndMode();
+    setupViewTabs();
     setupEventListeners();
     setupDealForm();
     renderUI();
@@ -124,6 +125,35 @@ function setupDateAndMode() {
 
     const targetRev = document.getElementById('target-rev');
     if (targetRev) targetRev.textContent = targets.rev;
+}
+
+function setupViewTabs() {
+    document.querySelectorAll('.view-tab').forEach((button) => {
+        button.addEventListener('click', () => {
+            const view = button.getAttribute('data-view');
+            showView(view);
+        });
+    });
+}
+
+function showView(view) {
+    const todayView = document.getElementById('today-view');
+    const weekView = document.getElementById('week-view');
+
+    const isWeek = view === 'week';
+
+    todayView?.classList.toggle('active', !isWeek);
+    weekView?.classList.toggle('active', isWeek);
+
+    document.querySelectorAll('.view-tab').forEach((button) => {
+        const active = button.getAttribute('data-view') === (isWeek ? 'week' : 'today');
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    if (isWeek) {
+        loadWeekState();
+    }
 }
 
 function setupEventListeners() {
@@ -182,6 +212,7 @@ async function sendAction(actionData) {
 
     try {
         await postToApi(payload);
+        setWeekSyncStatus('OPEN WEEK TO REFRESH');
         console.log(`${actionData.actionType} sent to Google Sheets.`);
     } catch (error) {
         console.error(`Could not send ${actionData.actionType} to Google Sheets:`, error);
@@ -215,6 +246,153 @@ async function loadTodayState() {
     } finally {
         setActionButtonsDisabled(false);
     }
+}
+
+async function loadWeekState() {
+    setWeekSyncStatus('SYNCING...');
+
+    try {
+        const data = await jsonpRequest({ action: 'getWeek' });
+
+        if (!data || data.ok !== true) {
+            throw new Error(data?.error || 'Could not load week data');
+        }
+
+        renderWeek(data);
+        setWeekSyncStatus('SHEET SYNCED');
+    } catch (error) {
+        console.error('Could not restore week from Google Sheets:', error);
+        setWeekSyncStatus('WEEK SYNC FAILED');
+    }
+}
+
+function renderWeek(data) {
+    const rangeEl = document.getElementById('week-range');
+    const xpEl = document.getElementById('week-xp');
+    const modeEl = document.getElementById('week-mode');
+    const metricsEl = document.getElementById('week-metrics');
+
+    if (rangeEl) {
+        rangeEl.textContent = formatWeekRange(data.weekStart, data.weekEnd);
+    }
+
+    if (xpEl) {
+        xpEl.textContent = safeNumber(data.xp);
+    }
+
+    if (modeEl) {
+        modeEl.textContent = String(data.mode || getModeLabel());
+    }
+
+    const metrics = Array.isArray(data.metrics) ? data.metrics : [];
+    renderWeekMetrics(metrics, metricsEl);
+    updateWeekScore(metrics);
+}
+
+function renderWeekMetrics(metrics, container) {
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!metrics.length) {
+        const empty = document.createElement('p');
+        empty.className = 'week-empty';
+        empty.textContent = 'No weekly targets were returned from Google Sheets.';
+        container.appendChild(empty);
+        return;
+    }
+
+    metrics.forEach((metric) => {
+        const name = String(metric.name || 'Metric');
+        const current = safeNumber(metric.current);
+        const target = safeNumber(metric.target);
+        const hasTarget = target > 0;
+        const complete = hasTarget && current >= target;
+        const percentage = hasTarget ? Math.min((current / target) * 100, 100) : 0;
+
+        const row = document.createElement('div');
+        row.className = 'week-metric';
+
+        const head = document.createElement('div');
+        head.className = 'week-metric-head';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'week-metric-name';
+        nameEl.textContent = name;
+
+        const valueEl = document.createElement('span');
+        valueEl.className = `week-metric-value${complete ? ' done' : ''}`;
+        valueEl.textContent = hasTarget
+            ? `${current} / ${target}${complete ? ' ✓' : ''}`
+            : `${current} / —`;
+
+        head.append(nameEl, valueEl);
+
+        const barBg = document.createElement('div');
+        barBg.className = 'week-metric-bar-bg';
+
+        const bar = document.createElement('div');
+        bar.className = `week-metric-bar-fill${complete ? ' complete' : ''}`;
+        bar.style.width = `${percentage}%`;
+
+        barBg.appendChild(bar);
+        row.append(head, barBg);
+        container.appendChild(row);
+    });
+}
+
+function updateWeekScore(metrics) {
+    const activeTargets = metrics.filter((metric) => safeNumber(metric.target) > 0);
+    const completed = activeTargets.filter((metric) => safeNumber(metric.current) >= safeNumber(metric.target)).length;
+    const total = activeTargets.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    const text = document.getElementById('week-score-text');
+    const bar = document.getElementById('week-score-bar');
+    const barBg = document.querySelector('.week-score-bar-bg');
+
+    if (text) {
+        text.textContent = `${completed} / ${total} TARGETS HIT`;
+    }
+
+    if (bar) {
+        bar.style.width = `${percentage}%`;
+        bar.classList.toggle('complete', total > 0 && completed === total);
+    }
+
+    if (barBg) {
+        barBg.setAttribute('aria-valuenow', String(percentage));
+    }
+}
+
+function formatWeekRange(start, end) {
+    const startDate = parseDateKey(start);
+    const endDate = parseDateKey(end);
+
+    if (!startDate || !endDate) {
+        return `${start || ''} — ${end || ''}`.trim();
+    }
+
+    const startText = startDate.toLocaleDateString('en-CA', {
+        month: 'short',
+        day: 'numeric'
+    });
+
+    const endText = endDate.toLocaleDateString('en-CA', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+
+    return `${startText} — ${endText}`;
+}
+
+function parseDateKey(value) {
+    const text = String(value || '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
+
+    const [year, month, day] = text.split('-').map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0);
 }
 
 function jsonpRequest(params, timeoutMs = 10000) {
@@ -270,6 +448,11 @@ function jsonpRequest(params, timeoutMs = 10000) {
 
 function setSyncStatus(text) {
     const el = document.getElementById('sync-status');
+    if (el) el.textContent = text;
+}
+
+function setWeekSyncStatus(text) {
+    const el = document.getElementById('week-sync-status');
     if (el) el.textContent = text;
 }
 
@@ -398,6 +581,7 @@ async function handleDealSubmit(event) {
 
         renderUI();
         animateXP();
+        setWeekSyncStatus('OPEN WEEK TO REFRESH');
 
         document.getElementById('deal-form')?.reset();
         updateProfitPreview();
