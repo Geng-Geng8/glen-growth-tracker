@@ -2,7 +2,7 @@
     const READ_CACHE_PREFIX = 'glenGrowth:pwa:data:';
     const LAST_SYNC_KEY = 'glenGrowth:pwa:lastSyncAt';
     const READ_ACTIONS = new Set(['getToday', 'getWeek', 'getMoney', 'getWins', 'getStreak']);
-    const SW_URL = './sw-v3.js?v=20260907-1';
+    const SW_URL = './sw-v3.js?v=20260915-undo1';
 
     let deferredInstallPrompt = null;
 
@@ -133,6 +133,8 @@
                 state.bookedAmount = safeNumber(data.bookedAmount);
                 state.estimatedProfit = safeNumber(data.estimatedProfit);
                 state.dealsBooked = safeNumber(data.dealsBooked);
+
+                window.glenGrowthXpActivity?.projectToday();
 
                 renderUI();
                 setSyncStatus(data._fromCache ? cacheLabel(data) : 'SHEET SYNCED');
@@ -439,7 +441,7 @@
     function loadOfflineQueueEngine() {
         if (document.querySelector('script[data-glen-offline-queue]')) return;
         const script = document.createElement('script');
-        script.src = './offline-queue-v2.js?v=20260907-1';
+        script.src = './offline-queue-v2.js?v=20260915-undo1';
         script.dataset.glenOfflineQueue = 'true';
         document.body.appendChild(script);
     }

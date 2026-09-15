@@ -1,6 +1,6 @@
 (function GlenGrowthProductHardening() {
-    const BUILD_VERSION = '2026.09.07-final1';
-    const SW_URL = './sw-v3.js?v=20260907-1';
+    const BUILD_VERSION = '2026.09.15-undo1';
+    const SW_URL = './sw-v3.js?v=20260915-undo1';
     const UPDATE_CHECK_KEY = 'glenGrowth:lastUpdateCheck';
     const UPDATE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
@@ -394,6 +394,7 @@
         [
             'glen-growth-write-queued',
             'glen-growth-write-confirmed',
+            'glen-growth-action-undone',
             'glen-growth-queue-empty',
             'glen-growth-network-sync'
         ].forEach((name) => window.addEventListener(name, rerender));

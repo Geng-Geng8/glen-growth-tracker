@@ -1760,3 +1760,31 @@ textarea:focus-visible {
         animation-iteration-count: 1 !important;
     }
 }
+/* Focused XP guide and action undo controls. */
+.log-action-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.actions-panel .log-action-heading h3 { margin: 0; }
+#xp-guide-open { width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border: 0; background: transparent; color: #ccff00; cursor: pointer; }
+.recent-activity { margin-top: 24px; padding: 16px; background: #0c0d0c; border: 1px solid #292d25; border-radius: 16px; }
+.recent-activity h3 { margin: 0 0 8px; color: #fff; font-size: .75rem; letter-spacing: 1px; }
+#recent-activity-list { list-style: none; padding: 0; margin: 0; }
+#recent-activity-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #262922; font-size: .75rem; }
+#recent-activity-list li:last-child { border: 0; }
+#recent-activity-list strong { display: block; line-height: 1.4; }
+#recent-activity-list small { display: block; color: #aaa; margin-top: 4px; line-height: 1.4; }
+#recent-activity-note { color: #aaa; font-size: .7rem; margin: 8px 0 0; }
+#recent-activity-list button, #xp-action-undo, #xp-guide-close { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; border: 1px solid #465522; border-radius: 9px; background: #11150b; color: #ccff00; font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer; }
+#recent-activity-list button:disabled { opacity: .45; cursor: default; }
+#xp-guide { margin: auto; padding: 0; width: min(520px, calc(100% - 24px)); max-height: 85vh; max-height: 85dvh; overflow-y: auto; overscroll-behavior: contain; border: 1px solid #465522; border-radius: 18px; background: #0b0c0a; color: #fff; }
+#xp-guide::backdrop { background: rgba(0, 0, 0, .78); }
+.xp-guide-card { padding: 0 18px 18px; }
+.xp-guide-card header { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; background: #0b0c0a; }
+.xp-guide-card h2 { font-size: 1rem; margin: 0; }
+.xp-guide-card section { padding: 16px 0; border-top: 1px solid #303529; }
+.xp-guide-card h3 { font-size: .85rem; line-height: 1.5; margin: 0 0 10px; }
+.xp-guide-card h3 span { color: #ccff00; white-space: nowrap; }
+.xp-guide-card p, .xp-guide-card ul { color: #ddd; font-size: .82rem; line-height: 1.55; margin: 8px 0; }
+.xp-guide-card ul { padding-left: 20px; }
+.xp-guide-card strong { color: #fff; }
+#xp-action-toast { position: fixed; z-index: 2500; left: 50%; bottom: max(90px, calc(env(safe-area-inset-bottom) + 90px)); transform: translateX(-50%); width: min(460px, calc(100% - 24px)); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid #465522; border-radius: 12px; background: #10130c; color: #fff; box-shadow: 0 12px 36px #0009; font-size: .8rem; line-height: 1.4; }
+#xp-action-toast[hidden] { display: none; }
+#xp-guide button:focus-visible, #xp-guide-open:focus-visible, .recent-activity button:focus-visible, #xp-action-undo:focus-visible { outline: 2px solid #ccff00; outline-offset: 3px; }

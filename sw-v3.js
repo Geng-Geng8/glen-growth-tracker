@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'glen-growth-shell-v5-logo2-20260907';
+const SHELL_CACHE = 'glen-growth-shell-v6-undo-20260915';
 const NAVIGATION_TIMEOUT_MS = 4500;
 
 const SHELL_FILES = [
@@ -6,6 +6,7 @@ const SHELL_FILES = [
   './index.html',
   './styles.css',
   './app.js',
+  './xp-activity.js',
   './money.js',
   './wins.js',
   './streak.js',

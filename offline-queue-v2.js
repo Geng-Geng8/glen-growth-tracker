@@ -3,6 +3,9 @@
     const RETRY_DELAY_MS = 12000;
     const VERIFY_DELAY_MS = 850;
     const MAX_VERIFY_ATTEMPTS = 5;
+    const QUEUE_LOCK = `${QUEUE_KEY}:lock`;
+    const UNDOABLE_TYPES = new Set(Object.values(actionValues)
+        .filter((action) => action.persist).map((action) => action.actionType));
 
     let flushing = false;
     let retryTimer = null;
@@ -15,14 +18,15 @@
     }
 
     window.postToApi = async function queueFirstPost(payload) {
-        const item = enqueueMutation(payload);
+        const item = await withQueueLock(() => enqueueMutation(payload));
         renderQueueState();
 
         window.dispatchEvent(new CustomEvent('glen-growth-write-queued', {
             detail: {
                 mutationId: item.mutationId,
                 action: item.type,
-                queuedAt: item.createdAt
+                queuedAt: item.createdAt,
+                item
             }
         }));
 
@@ -31,7 +35,8 @@
         return {
             ok: true,
             queued: true,
-            mutationId: item.mutationId
+            mutationId: item.mutationId,
+            item
         };
     };
 
@@ -41,8 +46,35 @@
         flush: flushQueue,
         retryNow: () => flushQueue(true),
         count: () => readQueue().length,
-        list: () => readQueue().map((item) => ({ ...item }))
+        list: () => readQueue().map((item) => ({ ...item })),
+        undoAction
     };
+
+    function withQueueLock(callback) {
+        return navigator.locks ? navigator.locks.request(QUEUE_LOCK, callback) : Promise.resolve().then(callback);
+    }
+
+    async function undoAction(record) {
+        const actionId = String(record?.id || '').trim();
+        if (!actionId || !UNDOABLE_TYPES.has(record.actionType)) throw new Error('This action is protected from Undo.');
+        // Without a cross-tab lock we cannot promise that another tab has not begun sending.
+        if (!navigator.locks) throw new Error('Safe local Undo is unavailable in this browser.');
+        const result = await withQueueLock(() => {
+            const queue = readQueue();
+            const match = queue.find((entry) => entry.type === 'addAction' && entry.mutationId === actionId);
+            // A failed or timed-out POST may already have reached Sheets. Never cancel its retry.
+            if (match && UNDOABLE_TYPES.has(match.payload.actionType) && Number(match.attemptCount) === 0 && !match.lastAttemptAt) {
+                writeQueue(queue.filter((entry) => entry.mutationId !== match.mutationId));
+                return { cancelled: true, item: match };
+            }
+            const item = enqueueMutation({ action: 'undoAction', actionId, actionType: record.actionType });
+            return { queued: true, item };
+        });
+        renderQueueState();
+        window.dispatchEvent(new CustomEvent('glen-growth-action-undone', { detail: result }));
+        if (result.queued && navigator.onLine) scheduleFlush(40);
+        return result;
+    }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', setupQueueUi, { once: true });
@@ -73,11 +105,17 @@
 
         const type = String(payload.action || '').trim();
 
-        if (!['addAction', 'addDeal', 'markDealPaid'].includes(type)) {
+        if (!['addAction', 'addDeal', 'markDealPaid', 'undoAction'].includes(type)) {
             throw new Error(`Unsupported queued action: ${type || 'unknown'}`);
         }
 
         const queue = readQueue();
+
+        if (type === 'undoAction') {
+            if (!payload.actionId || !UNDOABLE_TYPES.has(payload.actionType)) throw new Error('Invalid Undo action.');
+            const existing = queue.find((item) => item.type === type && item.payload.actionId === payload.actionId);
+            if (existing) return existing;
+        }
 
         if (type === 'markDealPaid') {
             const requestedDealId = String(payload.dealId || '').trim();
@@ -92,8 +130,13 @@
         const mutationId = String(payload.clientMutationId || '').trim() || makeMutationId();
         const cleanPayload = {
             ...payload,
-            clientMutationId: mutationId
+            clientMutationId: mutationId,
+            clientCreatedAt: payload.clientCreatedAt || new Date().toISOString()
         };
+
+        if (type === 'addAction' && UNDOABLE_TYPES.has(cleanPayload.actionType)) {
+            cleanPayload.actionId = mutationId;
+        }
 
         if (type === 'addDeal') {
             cleanPayload.dealId = String(payload.dealId || '').trim() || mutationId;
@@ -186,26 +229,34 @@
             for (const original of initial) {
                 if (!navigator.onLine) break;
 
-                const item = readQueue().find((entry) => entry.mutationId === original.mutationId);
+                const item = await withQueueLock(() => {
+                    const current = readQueue().find((entry) => entry.mutationId === original.mutationId);
+                    if (!current) return null;
+                    if (current.type === 'undoAction' && readQueue().some((entry) =>
+                        entry.type === 'addAction' && entry.mutationId === current.payload.actionId)) return null;
+                    if (!force && current.lastAttemptAt) {
+                        const elapsed = Date.now() - new Date(current.lastAttemptAt).getTime();
+                        if (Number.isFinite(elapsed) && elapsed < 1200) return null;
+                    }
+                    current.lastAttemptAt = new Date().toISOString();
+                    current.attemptCount = Number(current.attemptCount || 0) + 1;
+                    current.lastError = '';
+                    updateMutation(current);
+                    return current;
+                });
                 if (!item) continue;
-
-                if (!force && item.lastAttemptAt) {
-                    const elapsed = Date.now() - new Date(item.lastAttemptAt).getTime();
-                    if (Number.isFinite(elapsed) && elapsed < 1200) continue;
-                }
-
-                item.lastAttemptAt = new Date().toISOString();
-                item.attemptCount = Number(item.attemptCount || 0) + 1;
-                item.lastError = '';
-                updateMutation(item);
                 renderQueueState();
+                window.dispatchEvent(new CustomEvent('glen-growth-write-started'));
 
                 try {
                     await nativePostToApi(item.payload);
 
                     const applied = await confirmMutationApplied(item);
                     if (applied) {
-                        removeMutation(item.mutationId);
+                        // Keep the overlay queued until a fresh snapshot includes the confirmed write.
+                        // Removing it earlier could briefly restore an undone action or lose logged XP.
+                        await window.glenGrowthXpActivity.refresh(true);
+                        await withQueueLock(() => removeMutation(item.mutationId));
                         window.dispatchEvent(new CustomEvent('glen-growth-write-confirmed', {
                             detail: {
                                 mutationId: item.mutationId,
@@ -214,11 +265,11 @@
                         }));
                     } else {
                         item.lastError = 'Sent but not confirmed yet.';
-                        updateMutation(item);
+                        await withQueueLock(() => updateMutation(item));
                     }
                 } catch (error) {
                     item.lastError = String(error?.message || error || 'Sync failed');
-                    updateMutation(item);
+                    await withQueueLock(() => updateMutation(item));
                     break;
                 }
             }
@@ -246,6 +297,7 @@
                     action: 'getMutationStatus',
                     mutationId: item.mutationId,
                     mutationType: item.type,
+                    actionId: String(item.payload?.actionId || ''),
                     dealId: String(item.payload?.dealId || '')
                 }, 9000);
 
