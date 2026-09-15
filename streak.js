@@ -53,6 +53,7 @@ async function loadStreakState() {
 }
 
 function renderStreak(data) {
+    data = window.glenGrowthXpActivity?.projectStreak(data) || data;
     const current = safeNumber(data.currentStreak);
     const best = safeNumber(data.bestStreak);
 

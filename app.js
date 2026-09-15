@@ -162,7 +162,7 @@ function setupEventListeners() {
     });
 }
 
-function handleActionClick(event) {
+async function handleActionClick(event) {
     const btn = event.currentTarget;
     const actionKey = btn.getAttribute('data-action');
     const actionData = actionValues[actionKey];
@@ -174,15 +174,14 @@ function handleActionClick(event) {
         return;
     }
 
-    state.xp += actionData.xp;
-    state[actionData.type] += 1;
-
-    renderUI();
-    animateAction(btn);
-    animateXP();
-
-    if (actionData.persist) {
-        sendAction(actionData);
+    try {
+        if (!window.glenGrowthOfflineQueue) throw new Error('The offline queue is still loading. Please try again.');
+        const result = await sendAction(actionData);
+        window.glenGrowthXpActivity.logged(result.item);
+        animateAction(btn);
+        animateXP();
+    } catch (error) {
+        window.showGlenGrowthToast?.(error.message || 'Could not save this action on this device.');
     }
 }
 
@@ -210,13 +209,9 @@ async function sendAction(actionData) {
         notes: 'Glen Growth web app'
     };
 
-    try {
-        await postToApi(payload);
-        setWeekSyncStatus('OPEN WEEK TO REFRESH');
-        console.log(`${actionData.actionType} sent to Google Sheets.`);
-    } catch (error) {
-        console.error(`Could not send ${actionData.actionType} to Google Sheets:`, error);
-    }
+    const result = await postToApi(payload);
+    setWeekSyncStatus('OPEN WEEK TO REFRESH');
+    return result;
 }
 
 async function loadTodayState() {
@@ -267,6 +262,7 @@ async function loadWeekState() {
 }
 
 function renderWeek(data) {
+    data = window.glenGrowthXpActivity?.projectWeek(data) || data;
     const rangeEl = document.getElementById('week-range');
     const xpEl = document.getElementById('week-xp');
     const modeEl = document.getElementById('week-mode');
@@ -578,6 +574,8 @@ async function handleDealSubmit(event) {
         state.bookedAmount += amount;
         state.estimatedProfit += profit;
         state.dealsBooked += 1;
+
+        window.glenGrowthXpActivity?.projectToday();
 
         renderUI();
         animateXP();

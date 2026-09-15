@@ -14,7 +14,7 @@
     <link rel="shortcut icon" type="image/png" href="GGLogo2.png?v=20260907-premium3">
     <link rel="manifest" href="manifest.webmanifest?v=20260907-premium1">
     <link rel="apple-touch-icon" href="GGLogo2.png?v=20260907-premium3">
-    <link rel="stylesheet" href="styles.css?v=20260907-premium1">
+    <link rel="stylesheet" href="styles.css?v=20260915-undo1">
 </head>
 <body>
     <header class="app-header">
@@ -98,7 +98,7 @@
             </section>
 
             <section class="actions-panel">
-                <h3>LOG ACTION</h3>
+                <div class="log-action-heading"><h3>LOG ACTION</h3><button id="xp-guide-open" type="button" aria-label="Open XP guide" aria-haspopup="dialog" aria-controls="xp-guide">ⓘ</button></div>
                 <div class="actions-grid">
                     <button class="action-btn btn-standard" data-action="contact" type="button"><span class="btn-title">Qualified Contact</span><span class="btn-xp">+1 XP</span></button>
                     <button class="action-btn btn-standard" data-action="followup" type="button"><span class="btn-title">Follow-up</span><span class="btn-xp">+1 XP</span></button>
@@ -109,6 +109,11 @@
                     <button class="action-btn btn-rev btn-wide" data-action="proposal" type="button"><span class="btn-title">Proposal / Quote Sent</span><span class="btn-xp">+8 XP</span></button>
                     <button class="action-btn btn-deal btn-wide" data-action="deal" type="button"><span class="btn-title">BOOKED DEAL</span><span class="btn-xp">+20 XP</span></button>
                 </div>
+            </section>
+            <section class="recent-activity" aria-labelledby="recent-activity-title">
+                <h3 id="recent-activity-title" tabindex="-1">RECENT ACTIVITY</h3>
+                <ul id="recent-activity-list"></ul>
+                <p id="recent-activity-note">Only sales actions can be undone.</p>
             </section>
         </section>
 
@@ -205,13 +210,34 @@
         </section>
     </div>
 
-    <script src="app.js?v=20260907-5"></script>
+
+    <dialog id="xp-guide" aria-labelledby="xp-guide-title">
+        <div class="xp-guide-card">
+            <header><h2 id="xp-guide-title">XP GUIDE</h2><button id="xp-guide-close" type="button" autofocus>Close</button></header>
+            <section><h3>QUALIFIED CONTACT <span>+1 XP</span></h3><p><strong>Counts:</strong> A specific person who could realistically hire, book, fund, partner with, or introduce Glen, with a real way to contact them.</p><p><strong>Doesn't count:</strong> Random organizations, generic school emails, or people with no clear fit.</p><p><strong>Example:</strong> Sarah Chen — SHSM Lead — Example Secondary School — verified school email.</p></section>
+            <section><h3>FOLLOW-UP <span>+1 XP</span></h3><p><strong>Counts:</strong> Contacting someone Glen has already reached out to in order to move an existing opportunity forward.</p><p><strong>Doesn't count:</strong> First outreach, checking whether someone replied, or liking/commenting on social media.</p><p><strong>Example:</strong> Following up with a SHSM teacher contacted last week.</p></section>
+            <section><h3>REFERRAL / INTRODUCTION ASKED <span>+3 XP</span></h3><p><strong>Counts:</strong> Directly asking someone to introduce or refer Glen to a specific person or type of decision-maker.</p><p><strong>Doesn't count:</strong> Passive statements such as: "Let me know if you know anyone."</p><p><strong>Example:</strong> "Could you introduce me to the SHSM lead at your school?"</p></section>
+            <section><h3>SOFTWARE INTERVIEW <span>+3 XP</span></h3><p><strong>Counts:</strong> A real conversation with a potential user about their problem/workflow and whether Glen's software could solve it.</p><p><strong>Doesn't count:</strong> Simply showing the software, getting compliments, or explaining features.</p><p><strong>Example:</strong> Interviewing a battle organizer about how they currently manage judging.</p></section>
+            <section><h3>DECISION-MAKER CONVERSATION <span>+5 XP</span></h3><p><strong>Counts:</strong> A two-way conversation with someone who can hire, approve, fund, or meaningfully influence a purchase.</p><p><strong>Doesn't count:</strong> Sending an unanswered email.</p><p><strong>Example:</strong> Speaking with a SHSM coordinator about bringing the program to their school.</p></section>
+            <section><h3>NEXT STEP SCHEDULED <span>+5 XP</span></h3><p><strong>Counts:</strong> Both sides agree to a specific next action.</p><p><strong>Doesn't count:</strong> "We'll stay in touch." Also does not count if Glen privately decides to follow up later without the other person agreeing.</p><p><strong>Examples:</strong></p><ul><li>meeting booked</li><li>demo scheduled</li><li>proposal requested</li><li>follow-up date agreed</li></ul></section>
+            <section><h3>PROPOSAL / QUOTE SENT <span>+8 XP</span></h3><p><strong>Counts:</strong> Sending a specific offer with scope and/or pricing to a real prospective buyer or funder.</p><p><strong>Doesn't count:</strong> Sending a website, brochure, general rate sheet, or introductory email.</p><p><strong>Example:</strong> Sending a $2,100 SHSM workshop proposal to a school.</p></section>
+            <section><h3>BOOKED DEAL <span>+20 XP</span></h3><p><strong>Counts:</strong> The client clearly commits to buying.</p><p><strong>Doesn't count:</strong></p><ul><li>proposal sent</li><li>verbal interest</li><li>tentative date</li><li>waiting for approval</li></ul><p><strong>Examples:</strong></p><ul><li>written yes</li><li>confirmed booking</li><li>purchase order</li><li>signed agreement</li><li>equivalent clear commitment</li></ul></section>
+        </div>
+    </dialog>
+    <div id="xp-action-toast" hidden>
+        <span id="xp-action-message" role="status" aria-live="polite"></span>
+        <button id="xp-action-undo" type="button">UNDO</button>
+    </div>
+
+    <script src="app.js?v=20260915-undo1"></script>
     <script src="money.js?v=20260907-1"></script>
     <script src="wins.js?v=20260907-1"></script>
-    <script src="streak.js?v=20260907-premium1"></script>
-    <script src="pwa-v3.js?v=20260907-premium1"></script>
+    <script src="streak.js?v=20260915-undo1"></script>
+    <script src="pwa-v3.js?v=20260915-undo1"></script>
+    <script src="xp-activity.js?v=20260915-undo1"></script>
+    <script src="offline-queue-v2.js?v=20260915-undo1" data-glen-offline-queue="true"></script>
     <script src="offline-timestamp.js?v=20260907-1"></script>
-    <script src="hardening-v1.js?v=20260907-premium1"></script>
-    <script src="premium-ui.js?v=20260907-premium3"></script>
+    <script src="hardening-v1.js?v=20260915-undo1"></script>
+    <script src="premium-ui.js?v=20260915-undo1"></script>
 </body>
 </html>

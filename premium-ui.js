@@ -192,7 +192,7 @@
                 card.querySelector('.system-health-label')?.textContent?.trim() === 'App Build'
             );
             const value = buildCard?.querySelector('.system-health-value');
-            if (value) value.textContent = '2026.09.07-premium3';
+            if (value) value.textContent = '2026.09.15-undo1';
         };
 
         updateBuild();
